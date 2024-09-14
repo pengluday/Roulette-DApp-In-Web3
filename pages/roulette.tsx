@@ -19,17 +19,24 @@ export default function App() {
     { radius: '40%', background: '#617df2' },
     { radius: '35%', background: '#afc8ff' },
     {
-      radius: '30%', background: '#869cfa',
+      radius: '30%', background: '#4CAF50',
       pointer: true,
       fonts: [{ text: '开始', top: '-10px' }]
     }
+    // {
+    //   radius: '50%', 
+    //   background: '#4CAF50',  // 青蛙绿色
+    //   pointer: true,
+    //   eyes: true,  // 增加眼睛标记
+    //   fonts: [{ text: '开始', top: '45%' }]
+    // }
   ])
   const myLucky = useRef()
   return  <main className={styles.main}>
-    <div>
-        <UserStatus/>
+    <div className="{styles.statusContainer}" style={{ marginBottom: "20px" , display: 'flex', justifyContent: "center"}}>
+          <UserStatus/>
     </div>
-    <div> 
+    <div className="{styles.statusContainer}" style={{ marginBottom: "20px" , display: 'flex', justifyContent: "center"}}> 
     <LuckyWheel
       ref={myLucky}
       width="600px"

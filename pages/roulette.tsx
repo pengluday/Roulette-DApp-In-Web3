@@ -1,7 +1,17 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { LuckyWheel } from '@lucky-canvas/react'
 import UserStatus from "../components/user-status"
 import styles from "../styles/Home.module.css";
+import { STATUS_CONTRACT_ADDRESS } from "../constants/addresses";
+import { ethers } from 'ethers'
+
+// 合约的ABI
+const abi = [
+  "function getRandomInRange(uint256 max) public view returns (uint256)"
+]
+// 合约地址
+const contractAddress = STATUS_CONTRACT_ADDRESS;
+
 
 export default function App() {
   const [blocks] = useState([
@@ -32,6 +42,35 @@ export default function App() {
     // }
   ])
   const myLucky = useRef()
+  const [provider, setProvider] = useState(null)
+  const [contract, setContract] = useState(null)
+
+  // 初始化 ethers.js 和合约
+  useEffect(() => {
+    const initContract = async () => {
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      const signer = provider.getSigner()
+      const contract = new ethers.Contract(contractAddress, abi, signer)
+      setProvider(provider)
+      setContract(contract)
+    }
+
+    initContract()
+  }, [])
+
+  // 调用智能合约的 getRandomInRange
+  const getRandomNumberFromContract = async (max) => {
+    if (contract) {
+      try {
+        const randomNumber = await contract.getRandomInRange(max)
+        return randomNumber.toNumber() // 转换为JavaScript的数值
+      } catch (err) {
+        console.error("Error getting random number: ", err)
+      }
+    }
+    return 0 // 如果调用失败，默认返回0
+  }
+
   return  <main className={styles.main}>
     <div className="{styles.statusContainer}" style={{ marginBottom: "20px" , display: 'flex', justifyContent: "center"}}>
           <UserStatus/>
@@ -44,13 +83,20 @@ export default function App() {
       blocks={blocks}
       prizes={prizes}
       buttons={buttons}
-      onStart={() => { // 点击抽奖按钮会触发star回调
-        myLucky.current.play()
-        setTimeout(() => {
-          const index = Math.random() * 6 >> 0
-          myLucky.current.stop(index)
-        }, 2500)
-      }}
+      onStart={async () => { // 点击抽奖按钮会触发start回调
+        myLucky.current.play(); // 启动转盘
+        try {
+            const index = await getRandomNumberFromContract(6); // 使用智能合约生成随机数
+            setTimeout(() => {
+              myLucky.current.stop(index); // 停止转盘
+              console.log("index: ", index);
+            }, 2500);
+        } catch (error) {
+            console.error("Error fetching random number: ", error);
+            // 处理错误情况，例如默认停止转盘在某个位置
+            myLucky.current.stop(0); // 默认停止在0号奖品
+        }
+    }}
       onEnd={prize => { // 抽奖结束会触发end回调
         alert('恭喜你抽到 ' + prize.fonts[0].text + ' 号奖品')
       }}

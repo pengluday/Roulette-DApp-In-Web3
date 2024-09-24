@@ -21,11 +21,11 @@ export default function UserStatus() {
     // 获取合约
 
     const { contract } = useContract(STATUS_CONTRACT_ADDRESS);
-    // 获取当前账户状态
-    const {
-        data: myStatus,
-        isLoading: isMyStatusLoading,
-    } = useContractRead(contract, "getStatus", [address]);
+    // // 获取当前账户状态
+    // const {
+    //     data: myStatus,
+    //     isLoading: isMyStatusLoading,
+    // } = useContractRead(contract, "getStatus", [address]);
     // 如果未连接钱包，则显示连接钱包的按钮
     if (!address) {
         return (
@@ -53,18 +53,18 @@ export default function UserStatus() {
             </div>
 
             {/* 展示当前账户的状态 */}
-            {!isMyStatusLoading && myStatus && (
+            {/* {!isMyStatusLoading && myStatus && (
                 <div>
                     <p className={styles.statusText}>{myStatus}</p>
                 </div>
-            )}
+            )} */}
 
-            <button
+            {/* <button
                 className={styles.updateButton}
                 onClick={() => setIsStatusModalOpen(true)}
-            >Update</button>
+            >Update</button> */}
 
-            {isStatusModalOpen && (
+            {/* {isStatusModalOpen && (
                 <div className={styles.statusModalContainer}>
                     <div className={styles.statusModal}>
                         <div className={styles.statusModalHeader}>
@@ -99,7 +99,7 @@ export default function UserStatus() {
                         >Update Status</Web3Button>
                     </div>
                 </div>
-            )}
+            )} */}
         </div>
     )
 };

@@ -1,11 +1,11 @@
 import { ConnectWallet, Web3Button, useAddress, useContract, useContractRead, useDisconnect } from "@thirdweb-dev/react";
 import { STATUS_CONTRACT_ADDRESS } from "../constants/addresses";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "../styles/Home.module.css";
 import Link from "next/link";
 import { truncateAddress } from "../utils/truncateAddress";
 
-export default function UserStatus() {
+export default function UserStatus({ setCanPlay })  {
     // 获取账户地址
     const address = useAddress();
     // 断开连接
@@ -21,12 +21,16 @@ export default function UserStatus() {
     // 获取合约
 
     const { contract } = useContract(STATUS_CONTRACT_ADDRESS);
-    // // 获取当前账户状态
-    // const {
-    //     data: myStatus,
-    //     isLoading: isMyStatusLoading,
-    // } = useContractRead(contract, "getStatus", [address]);
-    // 如果未连接钱包，则显示连接钱包的按钮
+
+    // 监听 address 变化，动态设置 canPlay
+    useEffect(() => {
+        if (address) {
+        setCanPlay(true);  // 如果 address 不为空，允许玩
+        } else {
+        setCanPlay(false); // 如果 address 为空，不允许玩
+        }
+    }, [address, setCanPlay]); // 当 address 或 setCanPlay 变化时触发
+
     if (!address) {
         return (
             <div>
@@ -37,6 +41,7 @@ export default function UserStatus() {
             </div>
         );
     }
+
 
     return (
         <div className={styles.userContainer} style={{ maxWidth: "500px" }}>
@@ -52,54 +57,6 @@ export default function UserStatus() {
                 >Logout</button>
             </div>
 
-            {/* 展示当前账户的状态 */}
-            {/* {!isMyStatusLoading && myStatus && (
-                <div>
-                    <p className={styles.statusText}>{myStatus}</p>
-                </div>
-            )} */}
-
-            {/* <button
-                className={styles.updateButton}
-                onClick={() => setIsStatusModalOpen(true)}
-            >Update</button> */}
-
-            {/* {isStatusModalOpen && (
-                <div className={styles.statusModalContainer}>
-                    <div className={styles.statusModal}>
-                        <div className={styles.statusModalHeader}>
-                            <p>New Status:</p>
-                            <button
-                                onClick={() => setIsStatusModalOpen(false)}
-                            >Close</button>
-                        </div>
-                        <textarea
-                            value={newStatus}
-                            onChange={(e) => {
-                                setNewStatus(e.target.value)
-                                setCharacterCount(e.target.value.length)
-                            }}
-                            placeholder="Enter your status"
-                        />
-                        <div className={styles.characterCountContainer}>
-                            <p className={characterDecoration}>{characterCount}/140</p>
-                        </div>
-                        <Web3Button
-                            className={styles.statusModalButton}
-                            contractAddress={STATUS_CONTRACT_ADDRESS}
-                            action={(contract) => contract.call(
-                                "setStatus",
-                                [newStatus]
-                            )}
-                            isDisabled={characterCount === 0 || characterCount > 140}
-                            onSuccess={() => {
-                                setIsStatusModalOpen(false);
-                                setNewStatus("");
-                            }}
-                        >Update Status</Web3Button>
-                    </div>
-                </div>
-            )} */}
         </div>
     )
 };
